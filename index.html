@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Popcorn &amp; Chill">
+<meta name="theme-color" content="#0f0d16">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Popcorn &amp; Chill</title>
+<style>
+:root{--bg:#0f0d16;--surface:#1a1724;--surface2:#24202f;--line:#322c41;--text:#f6f1e7;--muted:#a19bb1;--accent:#f6b93b;--accent-ink:#2a1a00;--red:#e5484d;--green:#3fbf7f;--violet:#8b7cf6;--radius:16px;--safe-b:env(safe-area-inset-bottom);--safe-t:env(safe-area-inset-top)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(80px + var(--safe-b));min-height:100vh}
+#app{padding:calc(var(--safe-t) + 12px) 16px 24px;max-width:640px;margin:0 auto}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+input,select,textarea{font:inherit;font-size:16px;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{min-height:96px;resize:vertical}
+svg{display:block}
+.top{display:flex;align-items:flex-end;justify-content:space-between;margin:4px 0 12px}
+.top h1{font-size:32px;margin:0;font-weight:800;letter-spacing:-.02em}
+.brand{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.btn-add{width:42px;height:42px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:28px;font-weight:600;display:grid;place-items:center;line-height:1}
+.search{margin-bottom:10px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14px;color:var(--muted);white-space:nowrap}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.wrapchips{flex-wrap:wrap;overflow:visible}
+.sec{margin-top:18px}
+.sec-h{display:flex;align-items:center;gap:8px;width:100%;padding:6px 0;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sec-h .n{background:var(--surface2);color:var(--text);border-radius:999px;padding:1px 8px;font-size:12px;letter-spacing:0}
+.chev{margin-left:auto;transition:transform .2s;color:var(--muted)}
+.chev svg{width:18px;height:18px}
+.sec.closed .sec-h .chev{transform:rotate(-90deg)}
+.sec.closed .sec-b{display:none}
+.card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;margin-top:8px;width:100%;cursor:pointer}
+.card:active{background:var(--surface2)}
+.card-main{flex:1;min-width:0}
+.title{font-weight:650;font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{color:var(--muted);font-size:13.5px;margin-top:2px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--surface2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.badge.acc{color:var(--accent);border-color:rgba(246,185,59,.35);background:rgba(246,185,59,.08)}
+.badge.green{color:var(--green);border-color:rgba(63,191,127,.35);background:rgba(63,191,127,.08)}
+.badge.vio{color:var(--violet);border-color:rgba(139,124,246,.4);background:rgba(139,124,246,.1)}
+.bar{height:5px;background:var(--surface2);border-radius:9px;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.next{flex:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px;padding:8px 11px;border-radius:12px;text-align:center;line-height:1.15}
+.next small{display:block;font-weight:600;font-size:10.5px;opacity:.75}
+.quick{flex:none;border:1px solid var(--line);color:var(--text);font-size:13.5px;padding:8px 11px;border-radius:12px;font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:44px 16px;font-size:15px;line-height:1.6}
+.empty-mini{color:var(--muted);font-size:14px;padding:10px 2px}
+.stars{display:flex;gap:4px}
+.star{font-size:30px;color:var(--line);line-height:1}
+.star.on{color:var(--accent)}
+.mini-stars{color:var(--accent);font-size:11.5px;letter-spacing:1px}
+#nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;background:rgba(15,13,22,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 8px calc(8px + var(--safe-b));z-index:10}
+#nav button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);width:72px}
+#nav button.on{color:var(--accent)}
+#nav svg{width:24px;height:24px}
+.pagebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.link{color:var(--accent);font-size:16px;padding:6px 0;font-weight:500}
+a.lnk{color:var(--accent);text-decoration:none;font-weight:600}
+.page h1{font-size:28px;margin:4px 0 4px;line-height:1.15;letter-spacing:-.01em}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:14px}
+.box h3{margin:0 0 10px;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lbl{font-size:13px;color:var(--muted);margin:14px 0 6px;display:block}
+.seg{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-size:14px;color:var(--muted);font-weight:600;text-align:center}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.bignext{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:14px 16px;font-weight:700;margin-top:14px}
+.bignext span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.season{border-top:1px solid var(--line)}
+.season:first-of-type{border-top:0}
+.season-h{display:flex;align-items:center;gap:12px;width:100%;padding:11px 0}
+.season-h b{font-size:16px}
+.season-h .meta{margin:0}
+.season.open>.season-h .chev{transform:rotate(90deg)}
+.season-b{display:none;padding-bottom:10px}
+.season.open .season-b{display:block}
+.ep{display:flex;align-items:center;gap:12px;padding:7px 0}
+.chk{flex:none;width:28px;height:28px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:transparent}
+.chk svg{width:17px;height:17px}
+.chk.on{background:var(--green);border-color:var(--green);color:#06210f}
+.chk.part{border-color:var(--accent)}
+.ep-t{flex:1;min-width:0}
+.ep-t .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ep-t .meta.ph{opacity:.55}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{padding:10px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);font-size:14.5px;font-weight:600;text-align:center;display:inline-block}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--red);border-color:rgba(229,72,77,.4);background:transparent}
+.btn.block{width:100%;padding:13px;display:block}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.sheet{background:var(--surface);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:10px 16px calc(22px + var(--safe-b));animation:up .25s ease-out;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
+.sheet h2{margin:2px 0 4px;font-size:21px}
+.sheet-foot{display:flex;gap:10px;margin-top:22px}
+.sheet-foot .btn{flex:1;padding:13px}
+.srow{display:grid;grid-template-columns:40px 1fr 1fr;gap:8px;align-items:center;margin-top:8px}
+.srow span{font-weight:700;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}}
+#toast{position:fixed;left:50%;bottom:calc(92px + var(--safe-b));transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.tl-year{font-weight:800;color:var(--accent);font-size:15px;margin:16px 0 4px}
+.tl-item{display:flex;align-items:center;gap:10px;padding:8px 4px 8px 14px;border-left:2px solid var(--line);margin-left:5px;width:100%}
+.tl-item .dot{width:10px;height:10px;border-radius:50%;background:var(--line);margin-left:-20px;flex:none;border:2px solid var(--surface)}
+.tl-item.done .dot{background:var(--green)}
+.tl-item.part .dot{background:var(--accent)}
+.tl-item .tl-name{flex:1;min-width:0}
+.tl-item.cur .tl-name b{color:var(--accent)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.tile .v{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.tile .k{color:var(--muted);font-size:13px}
+.h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.mrow{display:grid;grid-template-columns:58px 1fr 78px;gap:10px;align-items:center;font-size:13px;margin:8px 0}
+.mrow .mk{color:var(--muted);text-transform:capitalize}
+.mbars{display:flex;flex-direction:column;gap:3px}
+.mbars i{display:block;height:7px;border-radius:5px}
+.mbars i.e{background:var(--accent)}
+.mbars i.f{background:var(--violet)}
+.mrow .mv{text-align:right;color:var(--muted);font-size:12px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.list-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+.list-row:first-child{border-top:0}
+.list-row span{flex:1}
+.list-row .btn{padding:7px 10px;font-size:13px}
+.note{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+.warn{color:var(--accent)}
+.addrow{display:flex;gap:8px;margin-top:10px}
+.addrow .btn{flex:none}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="sheets"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+const KEY='popcorn-chill-v1';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const plural=(n,a,b)=>n+' '+(n>1?(b||a+'s'):a);
+const byTitle=(a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'});
+const fmtDate=ts=>new Date(ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+const clampInt=(v,min,max)=>Math.max(min,Math.min(max,Math.round(+v||0)));
+const sv=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICON={
+ chev:sv('<path d="m6 9 6 6 6-6"/>'),chevR:sv('<path d="m9 6 6 6-6 6"/>'),check:sv('<path d="M5 12.5 10 17l9-10"/>'),
+ tv:sv('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="m8 3 4 4 4-4"/>'),
+ film:sv('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4M3 12h18"/>'),
+ chart:sv('<path d="M5 20V11M12 20V5M19 20v-6M3 20h18"/>'),
+ gear:sv('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>')
+};
+
+/* ---------- Données ---------- */
+function blank(){return{version:1,series:[],films:[],categories:[],lastBackup:null}}
+const mkEps=(n,from=0)=>Array.from({length:n},(_,i)=>({n:from+i+1,title:'',summary:'',watched:false,watchedAt:null}));
+function normalize(d){
+ const o=Object.assign(blank(),d||{});
+ o.series=(Array.isArray(o.series)?o.series:[]).map(s=>({id:s.id||uid(),title:s.title||'Sans titre',
+  status:['todo','watching','done'].includes(s.status)?s.status:'todo',airing:s.airing==='ended'?'ended':'ongoing',
+  parentId:s.parentId||null,categoryIds:Array.isArray(s.categoryIds)?s.categoryIds:[],epDuration:+s.epDuration||45,
+  rating:+s.rating||0,review:s.review||'',createdAt:s.createdAt||Date.now(),updatedAt:s.updatedAt||Date.now(),
+  seasons:(Array.isArray(s.seasons)?s.seasons:[]).map(se=>({id:se.id||uid(),number:+se.number||1,year:se.year?+se.year:null,
+   episodes:(Array.isArray(se.episodes)?se.episodes:[]).map((e,i)=>({n:i+1,title:e.title||'',summary:e.summary||'',watched:!!e.watched,watchedAt:e.watchedAt||null}))}))}));
+ o.films=(Array.isArray(o.films)?o.films:[]).map(f=>({id:f.id||uid(),title:f.title||'Sans titre',year:f.year?+f.year:null,
+  director:f.director||'',saga:f.saga||'',sagaOrder:f.sagaOrder?+f.sagaOrder:null,status:f.status==='seen'?'seen':'todo',
+  categoryIds:Array.isArray(f.categoryIds)?f.categoryIds:[],duration:+f.duration||0,rating:+f.rating||0,review:f.review||'',
+  watchedAt:f.watchedAt||null,createdAt:f.createdAt||Date.now()}));
+ o.categories=(Array.isArray(o.categories)?o.categories:[]).filter(c=>c&&c.id&&c.name);
+ return o;
+}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return normalize(JSON.parse(r))}catch(e){}return blank()}
+let db=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast("Impossible d'enregistrer sur cet appareil")}}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+const S=id=>db.series.find(s=>s.id===id);
+const F=id=>db.films.find(f=>f.id===id);
+const catName=id=>(db.categories.find(c=>c.id===id)||{}).name;
+const sortedSeasons=s=>[...s.seasons].sort((a,b)=>a.number-b.number);
+const epTotal=s=>s.seasons.reduce((n,se)=>n+se.episodes.length,0);
+const epSeen=s=>s.seasons.reduce((n,se)=>n+se.episodes.filter(e=>e.watched).length,0);
+function nextEp(s){for(const se of sortedSeasons(s))for(const e of se.episodes)if(!e.watched)return{se,e};return null}
+function years(s){const y=s.seasons.map(se=>se.year).filter(Boolean);if(!y.length)return'';const a=Math.min(...y),b=Math.max(...y);return a===b?String(a):a+'–'+b}
+function rootOf(s){let cur=s;const seen=new Set();while(cur.parentId&&!seen.has(cur.id)){seen.add(cur.id);const p=S(cur.parentId);if(!p)break;cur=p}return cur}
+function family(s){const out=[rootOf(s)];for(let i=0;i<out.length;i++)db.series.filter(x=>x.parentId===out[i].id&&!out.includes(x)).sort(byTitle).forEach(x=>out.push(x));return out}
+function descendants(id){const out=new Set([id]);let added=true;while(added){added=false;db.series.forEach(x=>{if(x.parentId&&out.has(x.parentId)&&!out.has(x.id)){out.add(x.id);added=true}})}return out}
+function setEp(s,e,val){e.watched=val;e.watchedAt=val?Date.now():null;s.updatedAt=Date.now()}
+const LABEL={todo:'À voir',watching:'En cours',done:'Fini'};
+function autoStatus(s){
+ const t=epTotal(s),w=epSeen(s);if(!t||!w)return;
+ const target=w<t?'watching':(s.airing==='ended'?'done':'watching');
+ if(target!==s.status){s.status=target;toast(`« ${s.title} » passe dans ${LABEL[target]}`)}
+}
+const sagaFilms=name=>db.films.filter(f=>f.saga&&norm(f.saga)===norm(name)).sort((a,b)=>(a.year||9999)-(b.year||9999)||(a.sagaOrder||99)-(b.sagaOrder||99));
+
+/* ---------- UI ---------- */
+const ui={tab:'series',page:null,q:{series:'',films:''},cat:{series:'',films:''},closed:{},open:{}};
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2300)}
+function openSheet(html,after){const o=document.createElement('div');o.className='overlay';o.innerHTML=`<div class="sheet" role="dialog"><div class="grab"></div>${html}</div>`;o.addEventListener('click',e=>{if(e.target===o)closeSheet()});$('#sheets').appendChild(o);document.body.style.overflow='hidden';after&&after(o)}
+function closeSheet(){const o=$('#sheets').lastElementChild;if(o)o.remove();if(!$('#sheets').children.length)document.body.style.overflow=''}
+const sheetEl=()=>$('#sheets').lastElementChild;
+const segVal=g=>{const b=sheetEl()&&$(`.seg[data-group="${g}"] button.on`,sheetEl());return b?b.dataset.v:null};
+const pickedCats=()=>$$('#catpick .chip.on',sheetEl()).map(b=>b.dataset.v).filter(Boolean);
+
+function seg(group,opts,val,action,id){return `<div class="seg" data-group="${group}">${opts.map(([v,l])=>`<button class="${v===val?'on':''}" data-a="${action}" data-v="${v}"${id?` data-id="${id}"`:''}>${l}</button>`).join('')}</div>`}
+function stars(t,id,r){return `<div class="stars">${[1,2,3,4,5].map(i=>`<button class="star ${i<=r?'on':''}" data-a="rate" data-t="${t}" data-id="${id}" data-v="${i}" aria-label="${i} sur 5">★</button>`).join('')}</div>`}
+const miniStars=r=>r?`<span class="mini-stars">${'★'.repeat(r)}</span>`:'';
+const catBadges=ids=>ids.map(catName).filter(Boolean).map(n=>`<span class="badge">${esc(n)}</span>`).join('');
+function catChips(k){if(!db.categories.length)return'';return `<div class="chips"><button class="chip ${!ui.cat[k]?'on':''}" data-a="cat" data-k="${k}" data-v="">Tout</button>${db.categories.map(c=>`<button class="chip ${ui.cat[k]===c.id?'on':''}" data-a="cat" data-k="${k}" data-v="${c.id}">${esc(c.name)}</button>`).join('')}</div>`}
+function catPicker(ids){return `<div class="chips wrapchips" id="catpick">${db.categories.map(c=>`<button class="chip ${ids.includes(c.id)?'on':''}" data-a="pickCat" data-v="${c.id}">${esc(c.name)}</button>`).join('')}<button class="chip" data-a="newCatInline">+ Nouvelle catégorie</button></div>`}
+function section(key,label,n,body){return `<div class="sec ${ui.closed[key]?'closed':''}"><button class="sec-h" data-a="toggleSec" data-k="${key}">${label}<span class="n">${n}</span><span class="chev">${ICON.chev}</span></button><div class="sec-b">${body}</div></div>`}
+
+function render(){
+ if(ui.page&&!(ui.page.type==='serie'?S(ui.page.id):F(ui.page.id)))ui.page=null;
+ const app=$('#app');
+ if(ui.page)app.innerHTML=ui.page.type==='serie'?seriePage(S(ui.page.id)):filmPage(F(ui.page.id));
+ else app.innerHTML={series:seriesTab,films:filmsTab,stats:statsTab,settings:settingsTab}[ui.tab]();
+ $('#nav').innerHTML=[['series','Séries',ICON.tv],['films','Films',ICON.film],['stats','Stats',ICON.chart],['settings','Réglages',ICON.gear]]
+  .map(([k,l,i])=>`<button class="${ui.tab===k?'on':''}" data-a="tab" data-v="${k}">${i}<span>${l}</span></button>`).join('');
+}
+function go(page){ui.page=page;render();window.scrollTo(0,0)}
+
+/* ---------- Séries ---------- */
+function seriesTab(){return `<div class="top"><div><div class="brand">Popcorn &amp; Chill</div><h1>Séries</h1></div><button class="btn-add" data-a="newSerie" aria-label="Ajouter une série">+</button></div>
+<input class="search" type="search" placeholder="Rechercher une série" value="${esc(ui.q.series)}" data-i="q" data-k="series">
+${catChips('series')}<div id="list">${seriesList()}</div>`}
+function seriesList(){
+ if(!db.series.length)return `<div class="empty">Aucune série pour l'instant.<br>Touchez <b>+</b> pour ajouter la première.</div>`;
+ const q=norm(ui.q.series),c=ui.cat.series;
+ const list=db.series.filter(s=>(!q||norm(s.title).includes(q))&&(!c||s.categoryIds.includes(c)));
+ if(!list.length)return `<div class="empty">Aucun résultat.</div>`;
+ return [['watching','En cours'],['todo','À voir'],['done','Fini']].map(([st,label])=>{
+  const items=list.filter(s=>s.status===st).sort(st==='watching'?(a,b)=>b.updatedAt-a.updatedAt:byTitle);
+  return section('s-'+st,label,items.length,items.map(serieCard).join('')||`<div class="empty-mini">Rien ici pour l'instant.</div>`);
+ }).join('');
+}
+function serieCard(s){
+ const t=epTotal(s),w=epSeen(s),nx=nextEp(s),parent=s.parentId&&S(s.parentId);
+ const meta=[years(s),s.seasons.length?plural(s.seasons.length,'saison'):'',s.status==='watching'&&t?`${w}/${t} ép.`:''].filter(Boolean).join(' · ');
+ let right='';
+ if(s.status==='watching'&&nx)right=`<button class="next" data-a="watchNext" data-id="${s.id}"><small>Marquer vu</small>S${nx.se.number} · E${nx.e.n}</button>`;
+ else if(s.status==='watching'&&t)right=`<span class="badge green">À jour</span>`;
+ const badges=[parent?`<span class="badge vio">Spin-off de ${esc(parent.title)}</span>`:'',
+  `<span class="badge ${s.airing==='ended'?'':'acc'}">${s.airing==='ended'?'Terminée':'En production'}</span>`,catBadges(s.categoryIds),miniStars(s.rating)].join('');
+ return `<div class="card" data-a="openSerie" data-id="${s.id}" role="button"><div class="card-main"><div class="title">${esc(s.title)}</div>${meta?`<div class="meta">${meta}</div>`:''}<div class="badges">${badges}</div>${t&&s.status==='watching'?`<div class="bar"><i style="width:${Math.round(w/t*100)}%"></i></div>`:''}</div>${right}</div>`;
+}
+function seriePage(s){
+ const t=epTotal(s),w=epSeen(s),nx=nextEp(s),parent=s.parentId&&S(s.parentId);
+ const kids=db.series.filter(x=>x.parentId===s.id).sort(byTitle),fam=family(s);
+ return `<div class="page">
+ <div class="pagebar"><button class="link" data-a="back">‹ Séries</button><button class="link" data-a="editSerie" data-id="${s.id}">Modifier</button></div>
+ <h1>${esc(s.title)}</h1>
+ <div class="meta">${[years(s),plural(s.seasons.length,'saison'),plural(t,'épisode')].filter(Boolean).join(' · ')}</div>
+ ${s.categoryIds.length?`<div class="badges">${catBadges(s.categoryIds)}</div>`:''}
+ <span class="lbl">Ma liste</span>${seg('status',[['watching','En cours'],['todo','À voir'],['done','Fini']],s.status,'setSerieStatus',s.id)}
+ <span class="lbl">La série est…</span>${seg('airing',[['ongoing','Toujours en cours'],['ended','Terminée']],s.airing,'setAiring',s.id)}
+ ${t?`<div class="bar" style="height:7px;margin-top:18px"><i style="width:${Math.round(w/t*100)}%"></i></div><div class="meta" style="margin-top:6px">${w} / ${t} épisodes vus${!nx?' · à jour':''}</div>`:''}
+ ${nx?`<button class="bignext" data-a="watchNext" data-id="${s.id}"><span>Prochain : S${nx.se.number} · E${nx.e.n}${nx.e.title?' — '+esc(nx.e.title):''}</span><span>Vu ✓</span></button>`:''}
+ ${(parent||kids.length)?`<div class="box"><h3>Univers</h3>
+  ${parent?`<div>Spin-off de <a href="#" class="lnk" data-a="openSerie" data-id="${parent.id}">${esc(parent.title)}</a></div>`:''}
+  ${kids.length?`<div style="margin-top:${parent?6:0}px">Spin-offs : ${kids.map(k=>`<a href="#" class="lnk" data-a="openSerie" data-id="${k.id}">${esc(k.title)}</a>`).join(', ')}</div>`:''}
+  <button class="btn block" style="margin-top:12px" data-a="timelineSerie" data-id="${s.id}">Frise chronologique · ${plural(fam.length,'série')}</button></div>`:''}
+ <div class="box"><h3>Saisons</h3>${sortedSeasons(s).map(se=>seasonBlock(s,se)).join('')||'<div class="empty-mini">Aucune saison renseignée.</div>'}
+  <button class="btn block" style="margin-top:10px" data-a="addSeason" data-id="${s.id}">+ Ajouter une saison</button></div>
+ <div class="box"><h3>Mon avis</h3>${stars('serie',s.id,s.rating)}<textarea style="margin-top:12px" placeholder="Ce que j'en ai pensé…" data-i="review" data-t="serie" data-id="${s.id}">${esc(s.review)}</textarea></div>
+ <button class="btn danger block" style="margin-top:22px" data-a="delSerie" data-id="${s.id}">Supprimer de mes listes</button></div>`;
+}
+function seasonBlock(s,se){
+ const n=se.episodes.length,w=se.episodes.filter(e=>e.watched).length;
+ return `<div class="season ${ui.open[se.id]?'open':''}"><div class="season-h" data-a="toggleSeason" data-k="${se.id}" role="button">
+ <button class="chk ${n&&w===n?'on':w?'part':''}" data-a="toggleSeasonAll" data-id="${s.id}" data-se="${se.id}" aria-label="Toute la saison">${ICON.check}</button>
+ <span style="flex:1"><b>Saison ${se.number}</b><div class="meta">${se.year||'Année ?'} · ${w}/${n} ép.</div></span><span class="chev">${ICON.chevR}</span></div>
+ <div class="season-b">${se.episodes.map(e=>`<div class="ep"><button class="chk ${e.watched?'on':''}" data-a="toggleEp" data-id="${s.id}" data-se="${se.id}" data-n="${e.n}" aria-label="Vu">${ICON.check}</button>
+ <button class="ep-t" data-a="openEp" data-id="${s.id}" data-se="${se.id}" data-n="${e.n}"><div>Épisode ${e.n}${e.title?' — '+esc(e.title):''}</div><div class="meta ${e.summary?'':'ph'}">${e.summary?esc(e.summary):'+ résumé'}</div></button></div>`).join('')}
+ <div class="row-actions"><button class="btn" data-a="editSeason" data-id="${s.id}" data-se="${se.id}">Modifier la saison</button></div></div></div>`;
+}
+function srow(n,y,e){return `<div class="srow"><span>S${n}</span><input class="sr-y" type="number" inputmode="numeric" placeholder="Année" value="${y||''}"><input class="sr-e" type="number" inputmode="numeric" placeholder="Nb d'épisodes" value="${e||''}"></div>`}
+function serieForm(id){
+ const s=id?S(id):null,excl=s?descendants(s.id):new Set();
+ const opts=db.series.filter(x=>!excl.has(x.id)).sort(byTitle).map(x=>`<option value="${x.id}" ${s&&s.parentId===x.id?'selected':''}>${esc(x.title)}</option>`).join('');
+ openSheet(`<h2>${s?'Modifier la série':'Nouvelle série'}</h2>
+ <label class="lbl">Titre</label><input id="f-title" value="${esc(s?s.title:'')}" placeholder="ex. The Office" autocomplete="off">
+ <label class="lbl">Ma liste</label>${seg('status',[['watching','En cours'],['todo','À voir'],['done','Fini']],s?s.status:'todo','seg')}
+ <label class="lbl">La série est…</label>${seg('airing',[['ongoing','Toujours en cours'],['ended','Terminée']],s?s.airing:'ongoing','seg')}
+ <label class="lbl">Spin-off de…</label><select id="f-parent"><option value="">— Aucune (série d'origine) —</option>${opts}</select>
+ <label class="lbl">Durée moyenne d'un épisode (minutes)</label><input id="f-dur" type="number" inputmode="numeric" value="${s?s.epDuration:45}">
+ <label class="lbl">Catégories</label>${catPicker(s?s.categoryIds:[])}
+ ${s?'':`<label class="lbl">Saisons · année de sortie et nombre d'épisodes</label><div id="srows">${srow(1)}</div><button class="btn" style="margin-top:10px" data-a="addSrow">+ Saison</button>`}
+ <div class="sheet-foot"><button class="btn" data-a="close">Annuler</button><button class="btn pri" data-a="saveSerie" data-id="${s?s.id:''}">Enregistrer</button></div>`);
+}
+function seasonForm(sid,seId){
+ const s=S(sid),se=seId?s.seasons.find(x=>x.id===seId):null;
+ const last=sortedSeasons(s).slice(-1)[0];
+ const num=se?se.number:(last?last.number+1:1),yr=se?se.year:(last&&last.year?last.year+1:new Date().getFullYear());
+ openSheet(`<h2>${se?'Saison '+se.number:'Nouvelle saison'}</h2><div class="meta">${esc(s.title)}</div>
+ <div class="two"><div><label class="lbl">Numéro</label><input id="f-num" type="number" inputmode="numeric" value="${num}"></div><div><label class="lbl">Année de sortie</label><input id="f-year" type="number" inputmode="numeric" value="${yr||''}"></div></div>
+ <label class="lbl">Nombre d'épisodes</label><input id="f-eps" type="number" inputmode="numeric" value="${se?se.episodes.length:''}" placeholder="ex. 10">
+ <div class="sheet-foot">${se?`<button class="btn danger" data-a="delSeason" data-id="${s.id}" data-se="${se.id}">Supprimer</button>`:`<button class="btn" data-a="close">Annuler</button>`}<button class="btn pri" data-a="saveSeason" data-id="${s.id}" data-se="${se?se.id:''}">Enregistrer</button></div>`);
+}
+function epForm(sid,seId,n){
+ const s=S(sid),se=s.seasons.find(x=>x.id===seId),e=se.episodes[n-1];
+ openSheet(`<h2>S${se.number} · Épisode ${e.n}</h2><div class="meta">${esc(s.title)}</div>
+ <label class="lbl">Titre de l'épisode (facultatif)</label><input id="f-et" value="${esc(e.title)}" autocomplete="off">
+ <label class="lbl">Résumé (facultatif)</label><textarea id="f-es" placeholder="Ce qui se passe dans cet épisode…">${esc(e.summary)}</textarea>
+ <label class="lbl">Statut</label>${seg('epw',[['0','Pas vu'],['1','Vu']],e.watched?'1':'0','seg')}
+ ${e.watchedAt?`<div class="note">Vu le ${fmtDate(e.watchedAt)}</div>`:''}
+ <div class="sheet-foot"><button class="btn" data-a="close">Annuler</button><button class="btn pri" data-a="saveEp" data-id="${s.id}" data-se="${se.id}" data-n="${e.n}">Enregistrer</button></div>`);
+}
+function timelineSerie(id){
+ const s=S(id),fam=family(s),items=[];
+ fam.forEach(x=>x.seasons.forEach(se=>items.push({x,se})));
+ items.sort((a,b)=>(a.se.year||9999)-(b.se.year||9999)||fam.indexOf(a.x)-fam.indexOf(b.x)||a.se.number-b.se.number);
+ let html='',cy;
+ items.forEach(({x,se})=>{
+  const y=se.year||'Année inconnue';if(y!==cy){html+=`<div class="tl-year">${y}</div>`;cy=y}
+  const n=se.episodes.length,w=se.episodes.filter(e=>e.watched).length;
+  html+=`<button class="tl-item ${n&&w===n?'done':w?'part':''} ${x.id===s.id?'cur':''}" data-a="tlOpen" data-id="${x.id}"><span class="dot"></span><span class="tl-name"><b>${esc(x.title)}</b> · Saison ${se.number}</span><span class="meta">${w}/${n}</span></button>`;
+ });
+ openSheet(`<h2>Frise chronologique</h2><div class="note">Univers « ${esc(fam[0].title)} » : saisons classées par année de sortie. Celles d'une même année se regardent en parallèle.</div>${html||'<div class="empty-mini">Ajoutez des saisons avec leur année.</div>'}
+ <div class="note" style="margin-top:16px"><span style="color:var(--green)">●</span> vue &nbsp; <span style="color:var(--accent)">●</span> commencée &nbsp; <span>●</span> pas commencée</div>
+ <div class="sheet-foot"><button class="btn" data-a="close">Fermer</button></div>`);
+}
+
+/* ---------- Films ---------- */
+function filmsTab(){return `<div class="top"><div><div class="brand">Popcorn &amp; Chill</div><h1>Films</h1></div><button class="btn-add" data-a="newFilm" aria-label="Ajouter un film">+</button></div>
+<input class="search" type="search" placeholder="Rechercher un film, un réalisateur, une saga" value="${esc(ui.q.films)}" data-i="q" data-k="films">
+${catChips('films')}<div id="list">${filmsList()}</div>`}
+function filmsList(){
+ if(!db.films.length)return `<div class="empty">Aucun film pour l'instant.<br>Touchez <b>+</b> pour ajouter le premier.</div>`;
+ const q=norm(ui.q.films),c=ui.cat.films;
+ const list=db.films.filter(f=>(!q||norm(f.title+' '+f.director+' '+f.saga).includes(q))&&(!c||f.categoryIds.includes(c)));
+ if(!list.length)return `<div class="empty">Aucun résultat.</div>`;
+ const todoSort=(a,b)=>(a.saga||a.title).localeCompare(b.saga||b.title,'fr',{sensitivity:'base'})||(a.year||9999)-(b.year||9999)||(a.sagaOrder||0)-(b.sagaOrder||0);
+ return [['todo','À voir',todoSort],['seen','Vus',(a,b)=>(b.watchedAt||0)-(a.watchedAt||0)]].map(([st,label,sort])=>{
+  const items=list.filter(f=>f.status===st).sort(sort);
+  return section('f-'+st,label,items.length,items.map(filmCard).join('')||`<div class="empty-mini">Rien ici pour l'instant.</div>`);
+ }).join('');
+}
+function filmCard(f){
+ const meta=[f.year,f.director].filter(Boolean).map(esc).join(' · ');
+ const badges=[f.saga?`<span class="badge vio">${esc(f.saga)}${f.sagaOrder?' · n°'+f.sagaOrder:''}</span>`:'',catBadges(f.categoryIds),miniStars(f.rating)].join('');
+ return `<div class="card" data-a="openFilm" data-id="${f.id}" role="button"><div class="card-main"><div class="title">${esc(f.title)}</div>${meta?`<div class="meta">${meta}</div>`:''}${badges?`<div class="badges">${badges}</div>`:''}</div>${f.status==='todo'?`<button class="quick" data-a="filmSeen" data-id="${f.id}">Vu ✓</button>`:''}</div>`;
+}
+function filmPage(f){
+ const saga=f.saga?sagaFilms(f.saga):[];
+ return `<div class="page">
+ <div class="pagebar"><button class="link" data-a="back">‹ Films</button><button class="link" data-a="editFilm" data-id="${f.id}">Modifier</button></div>
+ <h1>${esc(f.title)}</h1>
+ <div class="meta">${[f.year,f.director?'de '+esc(f.director):'',f.duration?f.duration+' min':''].filter(Boolean).join(' · ')}</div>
+ ${f.categoryIds.length?`<div class="badges">${catBadges(f.categoryIds)}</div>`:''}
+ <span class="lbl">Ma liste</span>${seg('fstatus',[['todo','À voir'],['seen','Vu']],f.status,'setFilmStatus',f.id)}
+ ${f.status==='seen'&&f.watchedAt?`<div class="note">Vu le ${fmtDate(f.watchedAt)}</div>`:''}
+ ${f.saga?`<div class="box"><h3>Saga · ${esc(f.saga)}</h3><div class="note" style="margin:0 0 4px">Films classés par année de sortie.</div>${saga.map(x=>`<button class="tl-item ${x.status==='seen'?'done':''} ${x.id===f.id?'cur':''}" data-a="openFilm" data-id="${x.id}"><span class="dot"></span><span class="tl-name"><b>${esc(x.title)}</b>${x.sagaOrder?' · n°'+x.sagaOrder:''}</span><span class="meta">${x.year||'?'}</span></button>`).join('')}</div>`:''}
+ <div class="box"><h3>Mon avis</h3>${stars('film',f.id,f.rating)}<textarea style="margin-top:12px" placeholder="Ce que j'en ai pensé…" data-i="review" data-t="film" data-id="${f.id}">${esc(f.review)}</textarea></div>
+ <button class="btn danger block" style="margin-top:22px" data-a="delFilm" data-id="${f.id}">Supprimer de mes listes</button></div>`;
+}
+function filmForm(id){
+ const f=id?F(id):null;
+ const sagas=[...new Set(db.films.map(x=>x.saga).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+ openSheet(`<h2>${f?'Modifier le film':'Nouveau film'}</h2>
+ <label class="lbl">Titre</label><input id="f-title" value="${esc(f?f.title:'')}" placeholder="ex. Le Fabuleux Destin d'Amélie Poulain" autocomplete="off">
+ <div class="two"><div><label class="lbl">Année</label><input id="f-year" type="number" inputmode="numeric" value="${f&&f.year?f.year:''}"></div><div><label class="lbl">Durée (min)</label><input id="f-dur" type="number" inputmode="numeric" value="${f&&f.duration?f.duration:''}" placeholder="facultatif"></div></div>
+ <label class="lbl">Réalisateur·rice</label><input id="f-dir" value="${esc(f?f.director:'')}" autocomplete="off">
+ <label class="lbl">Saga / suite de films (facultatif)</label>
+ <div class="two" style="grid-template-columns:1fr 92px"><input id="f-saga" list="saga-list" value="${esc(f?f.saga:'')}" placeholder="ex. Harry Potter" autocomplete="off"><input id="f-order" type="number" inputmode="numeric" placeholder="n°" value="${f&&f.sagaOrder?f.sagaOrder:''}"></div>
+ <datalist id="saga-list">${sagas.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+ <label class="lbl">Ma liste</label>${seg('fstatus',[['todo','À voir'],['seen','Vu']],f?f.status:'todo','seg')}
+ <label class="lbl">Catégories</label>${catPicker(f?f.categoryIds:[])}
+ <div class="sheet-foot"><button class="btn" data-a="close">Annuler</button><button class="btn pri" data-a="saveFilm" data-id="${f?f.id:''}">Enregistrer</button></div>`);
+}
+
+/* ---------- Stats ---------- */
+function statsTab(){
+ const now=new Date(),y=now.getFullYear(),months=[];
+ for(let i=11;i>=0;i--){const d=new Date(y,now.getMonth()-i,1);months.push({k:d.getFullYear()*12+d.getMonth(),label:d.toLocaleDateString('fr-FR',{month:'short'}).replace('.',''),e:0,f:0})}
+ const mk=ts=>{const d=new Date(ts);return d.getFullYear()*12+d.getMonth()};
+ let eps=0,mins=0,epsY=0,filmsSeen=0,filmsY=0;
+ db.series.forEach(s=>s.seasons.forEach(se=>se.episodes.forEach(e=>{if(!e.watched)return;eps++;mins+=s.epDuration;
+  if(e.watchedAt){if(new Date(e.watchedAt).getFullYear()===y)epsY++;const m=months.find(m=>m.k===mk(e.watchedAt));if(m)m.e++}})));
+ db.films.forEach(f=>{if(f.status!=='seen')return;filmsSeen++;mins+=f.duration||110;
+  if(f.watchedAt){if(new Date(f.watchedAt).getFullYear()===y)filmsY++;const m=months.find(m=>m.k===mk(f.watchedAt));if(m)m.f++}});
+ const h=Math.round(mins/60),max=Math.max(1,...months.map(m=>Math.max(m.e,m.f)));
+ const cnt=st=>db.series.filter(s=>s.status===st).length;
+ return `<div class="top"><div><div class="brand">Popcorn &amp; Chill</div><h1>Stats</h1></div></div>
+ <div class="tiles">
+  <div class="tile"><div class="v">${eps}</div><div class="k">épisodes vus</div></div>
+  <div class="tile"><div class="v">${filmsSeen}</div><div class="k">films vus</div></div>
+  <div class="tile"><div class="v">${cnt('done')}</div><div class="k">séries finies</div></div>
+  <div class="tile"><div class="v">${h} h</div><div class="k">devant l'écran${h>=24?' · ≈ '+Math.round(h/24)+' j':''}</div></div>
+ </div>
+ <div class="h2">En ${y}</div>
+ <div class="tiles"><div class="tile"><div class="v">${epsY}</div><div class="k">épisodes</div></div><div class="tile"><div class="v">${filmsY}</div><div class="k">films</div></div></div>
+ <div class="h2">12 derniers mois</div>
+ <div class="box" style="margin-top:0"><div class="legend"><span><i style="background:var(--accent)"></i>Épisodes</span><span><i style="background:var(--violet)"></i>Films</span></div>
+ ${months.map(m=>`<div class="mrow"><span class="mk">${m.label}</span><span class="mbars"><i class="e" style="width:${m.e/max*100}%"></i><i class="f" style="width:${m.f/max*100}%"></i></span><span class="mv">${m.e} ép. · ${m.f} f.</span></div>`).join('')}</div>
+ <div class="h2">Mes listes</div>
+ <div class="box" style="margin-top:0">
+  <div class="list-row"><span>Séries en cours</span><b>${cnt('watching')}</b></div>
+  <div class="list-row"><span>Séries à voir</span><b>${cnt('todo')}</b></div>
+  <div class="list-row"><span>Films à voir</span><b>${db.films.filter(f=>f.status==='todo').length}</b></div>
+ </div>
+ <div class="note">Le temps est estimé à partir de la durée moyenne des épisodes de chaque série, et de la durée des films (110 min si elle n'est pas renseignée).</div>`;
+}
+
+/* ---------- Réglages ---------- */
+function settingsTab(){
+ const lb=db.lastBackup,old=!lb||Date.now()-lb>30*864e5;
+ return `<div class="top"><div><div class="brand">Popcorn &amp; Chill</div><h1>Réglages</h1></div></div>
+ <div class="box"><h3>Catégories de listes</h3>
+  ${db.categories.length?db.categories.map(c=>`<div class="list-row"><span>${esc(c.name)}</span><button class="btn" data-a="renameCat" data-id="${c.id}">Renommer</button><button class="btn danger" data-a="delCat" data-id="${c.id}">Supprimer</button></div>`).join(''):'<div class="empty-mini">Aucune catégorie. Exemples : « Soirée entre filles », « Avec Marc », « Pour l\'été »…</div>'}
+  <div class="addrow"><input id="newcat" placeholder="Nouvelle catégorie" autocomplete="off"><button class="btn pri" data-a="addCat">Ajouter</button></div>
+ </div>
+ <div class="box"><h3>Sauvegarde</h3>
+  <div class="note" style="margin-top:0">${lb?'Dernière sauvegarde : '+fmtDate(lb):'Aucune sauvegarde pour l\'instant.'}${old?' <span class="warn">Pensez à en faire une.</span>':''}</div>
+  <div class="note">Vos listes sont enregistrées uniquement sur cet iPhone. Exportez régulièrement un fichier (dans Fichiers ou iCloud Drive) pour pouvoir les restaurer.</div>
+  <div class="row-actions" style="margin-top:12px"><button class="btn pri" data-a="export">Exporter mes listes</button><label class="btn">Restaurer…<input type="file" accept="application/json,.json" data-i="import" style="display:none"></label></div>
+ </div>
+ <div class="note" style="text-align:center;margin-top:24px">Popcorn &amp; Chill · ${db.series.length} séries · ${db.films.length} films</div>`;
+}
+async function exportData(){
+ const json=JSON.stringify(db,null,1),name=`popcorn-chill-${new Date().toISOString().slice(0,10)}.json`;
+ const file=new File([json],name,{type:'application/json'});
+ const done=()=>{db.lastBackup=Date.now();save();render();toast('Sauvegarde exportée')};
+ if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Sauvegarde Popcorn & Chill'});return done()}catch(e){if(e.name==='AbortError')return}}
+ const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);done();
+}
+function importFile(file){
+ if(!file)return;const r=new FileReader();
+ r.onload=()=>{let d;try{d=JSON.parse(r.result);if(!d||!Array.isArray(d.series)||!Array.isArray(d.films))throw 0}catch(e){return toast("Ce fichier n'est pas une sauvegarde Popcorn & Chill")}
+  if(!confirm(`Remplacer vos listes actuelles par cette sauvegarde (${d.series.length} séries, ${d.films.length} films) ?`))return;
+  db=normalize(d);save();ui.page=null;render();toast('Sauvegarde restaurée')};
+ r.readAsText(file);
+}
+
+/* ---------- Actions ---------- */
+const A={
+ tab:d=>{ui.tab=d.v;go(null)},
+ back:()=>go(null),
+ close:()=>closeSheet(),
+ seg:(d,el)=>{$$('button',el.parentElement).forEach(b=>b.classList.toggle('on',b===el))},
+ cat:d=>{ui.cat[d.k]=d.v;render()},
+ toggleSec:(d,el)=>{ui.closed[d.k]=!ui.closed[d.k];el.parentElement.classList.toggle('closed',ui.closed[d.k])},
+ pickCat:(d,el)=>el.classList.toggle('on'),
+ newCatInline:(d,el)=>{const n=(prompt('Nom de la nouvelle catégorie')||'').trim();if(!n)return;const c={id:uid(),name:n};db.categories.push(c);save();el.insertAdjacentHTML('beforebegin',`<button class="chip on" data-a="pickCat" data-v="${c.id}">${esc(n)}</button>`)},
+ rate:d=>{const it=d.t==='serie'?S(d.id):F(d.id);const v=+d.v;it.rating=it.rating===v?0:v;save();render()},
+ // séries
+ newSerie:()=>serieForm(),
+ editSerie:d=>serieForm(d.id),
+ openSerie:d=>go({type:'serie',id:d.id}),
+ tlOpen:d=>{closeSheet();go({type:'serie',id:d.id})},
+ addSrow:()=>{const rows=$$('#srows .srow');const lastY=rows.length?+$('.sr-y',rows[rows.length-1]).value:0;$('#srows').insertAdjacentHTML('beforeend',srow(rows.length+1,lastY?lastY+1:''))},
+ saveSerie:d=>{
+  const title=$('#f-title').value.trim();if(!title)return toast('Indiquez un titre');
+  const data={title,status:segVal('status'),airing:segVal('airing'),parentId:$('#f-parent').value||null,epDuration:clampInt($('#f-dur').value,1,600)||45,categoryIds:pickedCats(),updatedAt:Date.now()};
+  if(d.id){const s=S(d.id);const airChanged=s.airing!==data.airing;Object.assign(s,data);if(airChanged)autoStatus(s)}
+  else{
+   const seasons=$$('#srows .srow').map(r=>({y:+$('.sr-y',r).value||null,n:clampInt($('.sr-e',r).value,0,500)})).filter(x=>x.n||x.y)
+    .map((x,i)=>({id:uid(),number:i+1,year:x.y,episodes:mkEps(x.n)}));
+   const s={id:uid(),...data,rating:0,review:'',createdAt:Date.now(),seasons};db.series.push(s);ui.page={type:'serie',id:s.id};ui.tab='series';
+  }
+  save();closeSheet();render();window.scrollTo(0,0);
+ },
+ setSerieStatus:d=>{const s=S(d.id);s.status=d.v;s.updatedAt=Date.now();save();render()},
+ setAiring:d=>{const s=S(d.id);s.airing=d.v;autoStatus(s);save();render()},
+ watchNext:d=>{const s=S(d.id),nx=nextEp(s);if(!nx)return;setEp(s,nx.e,true);toast(`S${nx.se.number} · E${nx.e.n} vu`);autoStatus(s);save();render()},
+ toggleSeason:(d,el)=>{ui.open[d.k]=!ui.open[d.k];el.parentElement.classList.toggle('open',ui.open[d.k])},
+ toggleSeasonAll:d=>{const s=S(d.id),se=s.seasons.find(x=>x.id===d.se);if(!se.episodes.length)return;const all=se.episodes.every(e=>e.watched);se.episodes.forEach(e=>{if(e.watched===all)setEp(s,e,!all)});autoStatus(s);save();render()},
+ toggleEp:d=>{const s=S(d.id),se=s.seasons.find(x=>x.id===d.se),e=se.episodes[+d.n-1];setEp(s,e,!e.watched);autoStatus(s);save();render()},
+ openEp:d=>epForm(d.id,d.se,+d.n),
+ saveEp:d=>{const s=S(d.id),se=s.seasons.find(x=>x.id===d.se),e=se.episodes[+d.n-1];e.title=$('#f-et').value.trim();e.summary=$('#f-es').value.trim();
+  const w=segVal('epw')==='1';if(w!==e.watched){setEp(s,e,w);autoStatus(s)}save();closeSheet();render()},
+ addSeason:d=>seasonForm(d.id),
+ editSeason:d=>seasonForm(d.id,d.se),
+ saveSeason:d=>{
+  const s=S(d.id),n=clampInt($('#f-eps').value,0,500),num=clampInt($('#f-num').value,1,999)||1,year=+$('#f-year').value||null;
+  let se=d.se?s.seasons.find(x=>x.id===d.se):null;
+  if(se){
+   if(n<se.episodes.length){const lost=se.episodes.slice(n);if(lost.some(e=>e.watched||e.summary||e.title)&&!confirm(`Les épisodes ${n+1} à ${se.episodes.length} seront supprimés (avec leur statut « vu » ou leur résumé). Continuer ?`))return;se.episodes=se.episodes.slice(0,n)}
+   else se.episodes=se.episodes.concat(mkEps(n-se.episodes.length,se.episodes.length));
+   se.number=num;se.year=year;
+  }else{se={id:uid(),number:num,year,episodes:mkEps(n)};s.seasons.push(se)}
+  ui.open[se.id]=true;s.updatedAt=Date.now();autoStatus(s);save();closeSheet();render();
+ },
+ delSeason:d=>{const s=S(d.id),se=s.seasons.find(x=>x.id===d.se);if(!confirm(`Supprimer la saison ${se.number} ?`))return;s.seasons=s.seasons.filter(x=>x!==se);save();closeSheet();render()},
+ timelineSerie:d=>timelineSerie(d.id),
+ delSerie:d=>{const s=S(d.id),kids=db.series.filter(x=>x.parentId===s.id);
+  if(!confirm(`Supprimer « ${s.title} » de vos listes ?${kids.length?`\n\nSes spin-offs (${kids.map(k=>k.title).join(', ')}) seront conservés mais ne lui seront plus liés.`:''}`))return;
+  kids.forEach(k=>k.parentId=s.parentId||null);db.series=db.series.filter(x=>x!==s);save();toast('Série supprimée');go(null)},
+ // films
+ newFilm:()=>filmForm(),
+ editFilm:d=>filmForm(d.id),
+ openFilm:d=>go({type:'film',id:d.id}),
+ saveFilm:d=>{
+  const title=$('#f-title').value.trim();if(!title)return toast('Indiquez un titre');
+  const status=segVal('fstatus');
+  const data={title,year:+$('#f-year').value||null,duration:clampInt($('#f-dur').value,0,1000),director:$('#f-dir').value.trim(),saga:$('#f-saga').value.trim(),sagaOrder:+$('#f-order').value||null,status,categoryIds:pickedCats()};
+  let f=d.id?F(d.id):null;
+  if(f){if(status!==f.status)data.watchedAt=status==='seen'?Date.now():null;Object.assign(f,data);ui.page={type:'film',id:f.id}}
+  else{f={id:uid(),...data,rating:0,review:'',watchedAt:status==='seen'?Date.now():null,createdAt:Date.now()};db.films.push(f);ui.tab='films';ui.page=null;toast(`« ${f.title} » ajouté`)}
+  save();closeSheet();render();
+ },
+ filmSeen:d=>{const f=F(d.id);f.status='seen';f.watchedAt=Date.now();save();render();toast(`« ${f.title} » passe dans Vus`)},
+ setFilmStatus:d=>{const f=F(d.id);if(f.status===d.v)return;f.status=d.v;f.watchedAt=d.v==='seen'?Date.now():null;save();render()},
+ delFilm:d=>{const f=F(d.id);if(!confirm(`Supprimer « ${f.title} » de vos listes ?`))return;db.films=db.films.filter(x=>x!==f);save();toast('Film supprimé');go(null)},
+ // réglages
+ addCat:()=>{const i=$('#newcat'),n=i.value.trim();if(!n)return;db.categories.push({id:uid(),name:n});save();render();toast('Catégorie ajoutée')},
+ renameCat:d=>{const c=db.categories.find(x=>x.id===d.id);const n=(prompt('Nouveau nom',c.name)||'').trim();if(!n)return;c.name=n;save();render()},
+ delCat:d=>{const c=db.categories.find(x=>x.id===d.id);if(!confirm(`Supprimer la catégorie « ${c.name} » ?\nLes séries et films concernés restent dans vos listes.`))return;
+  db.categories=db.categories.filter(x=>x!==c);[...db.series,...db.films].forEach(it=>it.categoryIds=it.categoryIds.filter(x=>x!==c.id));
+  if(ui.cat.series===c.id)ui.cat.series='';if(ui.cat.films===c.id)ui.cat.films='';save();render()},
+ export:()=>exportData()
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const fn=A[el.dataset.a];if(!fn)return;e.preventDefault();e.stopPropagation();fn(el.dataset,el,e)});
+let revT;
+document.addEventListener('input',e=>{const el=e.target,i=el.dataset.i;
+ if(i==='q'){ui.q[el.dataset.k]=el.value;$('#list').innerHTML=el.dataset.k==='series'?seriesList():filmsList()}
+ else if(i==='review'){const it=el.dataset.t==='serie'?S(el.dataset.id):F(el.dataset.id);if(it){it.review=el.value;clearTimeout(revT);revT=setTimeout(save,400)}}});
+document.addEventListener('change',e=>{const el=e.target;if(el.dataset.i==='import'){importFile(el.files[0]);el.value=''}else if(el.dataset.i==='review')save()});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='newcat'){e.preventDefault();A.addCat()}});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
